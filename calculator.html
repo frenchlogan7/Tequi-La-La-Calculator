@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tequila Price Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            flex: 1;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button.delete {
+            background: #e74c3c;
+            padding: 10px 15px;
+        }
+
+        button.delete:hover {
+            background: #c0392b;
+        }
+
+        .products-list {
+            margin-top: 30px;
+        }
+
+        .product-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .summary {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .summary-label {
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .total-price {
+            font-size: 32px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍃 Tequila Price Calculator</h1>
+
+        <div class="form-group">
+            <label for="productName">Product Name:</label>
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="productName" 
+                    placeholder="Enter product name"
+                >
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="productPrice">Price ($):</label>
+            <div class="input-wrapper">
+                <input 
+                    type="number" 
+                    id="productPrice" 
+                    placeholder="Enter price" 
+                    step="0.01"
+                    min="0"
+                >
+                <button onclick="addProduct()">Add Product</button>
+            </div>
+        </div>
+
+        <div class="products-list">
+            <div id="productsList"></div>
+        </div>
+
+        <div class="summary">
+            <div class="summary-label">Total Amount:</div>
+            <div class="total-price">$<span id="totalPrice">0.00</span></div>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+
+        // Add product to list
+        function addProduct() {
+            const nameInput = document.getElementById('productName');
+            const priceInput = document.getElementById('productPrice');
+
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value);
+
+            // Validation
+            if (!name) {
+                alert('Please enter a product name');
+                return;
+            }
+
+            if (isNaN(price) || price < 0) {
+                alert('Please enter a valid price');
+                return;
+            }
+
+            // Add to products array
+            products.push({
+                id: Date.now(),
+                name: name,
+                price: price
+            });
+
+            // Clear inputs
+            nameInput.value = '';
+            priceInput.value = '';
+            nameInput.focus();
+
+            // Update display
+            updateDisplay();
+        }
+
+        // Delete product
+        function deleteProduct(id) {
+            products = products.filter(product => product.id !== id);
+            updateDisplay();
+        }
+
+        // Update the display
+        function updateDisplay() {
+            const listContainer = document.getElementById('productsList');
+
+            if (products.length === 0) {
+                listContainer.innerHTML = '<div class="empty-message">No products added yet</div>';
+            } else {
+                listContainer.innerHTML = products.map(product => `
+                    <div class="product-item">
+                        <div class="product-info">
+                            <div class="product-name">${escapeHtml(product.name)}</div>
+                            <div class="product-price">$${product.price.toFixed(2)}</div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="delete" onclick="deleteProduct(${product.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateTotal();
+        }
+
+        // Calculate and update total
+        function updateTotal() {
+            const total = products.reduce((sum, product) => sum + product.price, 0);
+            document.getElementById('totalPrice').textContent = total.toFixed(2);
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>'"]/g, m => map[m]);
+        }
+
+        // Allow Enter key to add product
+        document.getElementById('productPrice').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addProduct();
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
