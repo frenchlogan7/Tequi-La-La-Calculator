@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tequi-La-La Price Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section h2 {
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .product-catalog {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .catalog-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+            transition: background 0.2s;
+        }
+
+        .catalog-item:hover {
+            background: #ecf0f1;
+        }
+
+        .catalog-item button {
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .catalog-item button:hover {
+            background: #5568d3;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .item-price {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .selected-products {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .product-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
+
+        .quantity-controls button {
+            padding: 4px 8px;
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .quantity-controls button:hover {
+            color: #5568d3;
+        }
+
+        .quantity-display {
+            width: 30px;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+            font-size: 12px;
+        }
+
+        button.delete {
+            background: #e74c3c;
+            padding: 6px 10px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        button.delete:hover {
+            background: #c0392b;
+        }
+
+        .summary {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: right;
+            grid-column: 1 / -1;
+        }
+
+        .summary-label {
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .total-price {
+            font-size: 32px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .clear-btn {
+            grid-column: 1 / -1;
+            padding: 12px 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .clear-btn:hover {
+            background: #c0392b;
+        }
+
+        @media (max-width: 600px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥂 Tequi-La-La Price Calculator</h1>
+
+        <div class="content-wrapper">
+            <div class="section">
+                <h2>Available Products</h2>
+                <div class="product-catalog" id="catalog"></div>
+            </div>
+
+            <div class="section">
+                <h2>Cart</h2>
+                <div class="selected-products" id="cart"></div>
+            </div>
+
+            <div class="summary">
+                <div class="summary-label">Total Amount:</div>
+                <div class="total-price'>$<span id="totalPrice">0.00</span></div>
+            </div>
+
+            <button class="clear-btn" onclick="clearCart()">Clear Cart</button>
+        </div>
+    </div>
+
+    <script>
+        const availableProducts = [
+            { id: 1, name: "Fuck-U-Up Smoothie", price: 500.00 },
+            { id: 2, name: "EXT-Fck-U-Up Smoothie", price: 3,000.00 },
+            { id: 3, name: "Eggoholic Smoothie", price: 100.00 },
+            { id: 4, name: "Whiskey", price: 130.00 },
+            { id: 5, name: "Rum", price: 156.00 },
+            { id: 6, name: "Vodka", price: 100.00 },
+            { id: 7, name: "Tequila", price: 50.00 },
+            { id: 8, name: "Absinthe", price: 104.00 },
+            { id: 9, name: "Beer", price: 24.00 },
+            { id: 10, name: "Cider", price: 36.00 },
+            { id: 11, name: "Koka", price: 20.00 },
+            { id: 12, name: "Frezzi", price: 20.00 },
+            { id: 13, name: "Sprunk", price: 20.00 },
+            { id: 14, name: "Tanga", price: 20.00 },
+            { id: 15, name: "Green Cow", price: 40.00 },
+            { id: 16, name: "Tomato Juice", price: 30.00 },
+            { id: 17, name: "Pigeon Milk", price: 64.00 },
+            { id: 18, name: "Almond Milk", price: 156.00 },
+            { id: 19, name: "Water", price: 8.00 },
+            { id: 20, name: "Angostura Bitters", price: 64.00 },
+            { id: 21, name: "Grenadine", price: 53.00 },
+            { id: 22, name: "Sugar", price: 12.00 },
+            { id: 23, name: "Salt", price: 16.00 },
+            { id: 24, name: "Cocoa Powder", price: 20.00 },
+            { id: 25, name: "Lemon", price: 12.00 },
+            { id: 26, name: "Lime", price: 12.00 },
+            { id: 27, name: "Orange", price: 16.00 },
+            { id: 28, name: "Cherry", price: 8.00 },
+            { id: 29, name: "Pineapple", price: 28.00 },
+            { id: 30, name: "Coconut", price: 20.00 },
+            { id: 31, name: "Mint Leaves", price: 12.00 },
+            { id: 32, name: "Olives", price: 28.00 },
+            { id: 33, name: "Chili Peppers", price: 12.00 },
+            { id: 34, name: "Eggs", price: 16.00 },
+            { id: 35, name: "Hot Dog", price: 20.00 },
+            { id: 36, name: "Ham Sandwich", price: 32.00 },
+            { id: 37, name: "Nachos", price: 20.00 },
+            { id: 38, name: "Salted Peanuts", price: 24.00 },
+            { id: 39, name: "S'mores", price: 40.00 },
+            { id: 40, name: "Skittles", price: 20.00 },
+            { id: 41, name: "Paper Straw", price: 2.00 }
+        ];
+
+        let cart = [];
+
+        // Initialize catalog
+        function initializeCatalog() {
+            const catalogDiv = document.getElementById('catalog');
+            catalogDiv.innerHTML = availableProducts.map(product => `
+                <div class="catalog-item">
+                    <div class="item-info">
+                        <div class="item-name">${escapeHtml(product.name)}</div>
+                        <div class="item-price">$${product.price.toFixed(2)}</div>
+                    </div>
+                    <button onclick="addToCart(${product.id})">Add</button>
+                </div>
+            `).join('');
+        }
+
+        // Add product to cart
+        function addToCart(productId) {
+            const product = availableProducts.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1
+                });
+            }
+
+            updateCartDisplay();
+        }
+
+        // Remove product from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartDisplay();
+        }
+
+        // Update quantity
+        function updateQuantity(productId, change) {
+            const item = cart.find(p => p.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCartDisplay();
+                }
+            }
+        }
+
+        // Update cart display
+        function updateCartDisplay() {
+            const cartDiv = document.getElementById('cart');
+
+            if (cart.length === 0) {
+                cartDiv.innerHTML = '<div class="empty-message">Your cart is empty</div>';
+            } else {
+                cartDiv.innerHTML = cart.map(item => `
+                    <div class="product-item">
+                        <div class="product-info">
+                            <div class="product-name">${escapeHtml(item.name)}</div>
+                            <div class="product-price">$${(item.price * item.quantity).toFixed(2)}</div>
+                        </div>
+                        <div class="product-actions">
+                            <div class="quantity-controls">
+                                <button onclick="updateQuantity(${item.id}, -1)">−</button>
+                                <div class="quantity-display">${item.quantity}</div>
+                                <button onclick="updateQuantity(${item.id}, 1)">+</button>
+                            </div>
+                            <button class="delete" onclick="removeFromCart(${item.id})">Remove</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateTotal();
+        }
+
+        // Calculate and update total
+        function updateTotal() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('totalPrice').textContent = total.toFixed(2);
+        }
+
+        // Clear cart
+        function clearCart() {
+            if (cart.length > 0 && confirm('Are you sure you want to clear the cart?')) {
+                cart = [];
+                updateCartDisplay();
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>'"]/g, m => map[m]);
+        }
+
+        // Initialize
+        initializeCatalog();
+        updateCartDisplay();
+    </script>
+</body>
+</html>
